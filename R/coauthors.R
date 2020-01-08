@@ -73,17 +73,27 @@ get_coauthors <- function(id, n_coauthors = 5, n_deep = 1) {
 #' plot_coauthors(coauthor_network)
 #' }
 plot_coauthors <- function(network, size_labels = 5) {
-    graph <- tidygraph::as_tbl_graph(network) %>%
-        mutate(closeness = suppressWarnings(tidygraph::centrality_closeness())) %>%
-        filter(name != "")
-    # to delete authors who have **no coauthors**, that is ""
+  graph <-
+    tidygraph::as_tbl_graph(network) %>%
+    mutate(closeness = suppressWarnings(tidygraph::centrality_closeness())) %>%
+    filter(name != "")
+  # to delete authors who have **no coauthors**, that is ""
+
+  # You can fix this once this is anwsered:
+  # https://github.com/thomasp85/ggraph/issues/225
+  graph %>%
+    ggraph::ggraph(layout = "kk") +
+    ggraph::geom_edge_link(ggplot2::aes(color = as.character(from)), show.legend = FALSE)
+    ## ggraph::geom_node_point(ggplot2::aes_string(size = 'closeness'), alpha = 1/2, show.legend = FALSE) +
     
-    ggraph::ggraph(graph, layout = 'kk') +
-        ggraph::geom_edge_link(ggplot2::aes_string(alpha = 1/2, color = as.character('from')), alpha = 1/3, show.legend = FALSE) +
-        ggraph::geom_node_point(ggplot2::aes_string(size = 'closeness'), alpha = 1/2, show.legend = FALSE) +
-        ggraph::geom_node_text(ggplot2::aes_string(label = 'name'), size = size_labels, repel = TRUE, check_overlap = TRUE) +
-        ggplot2::labs(title = paste0("Network of coauthorship of ", network$author[1])) +
-        ggraph::theme_graph(title_size = 16, base_family = "sans")
+
+  ## ggraph::ggraph(graph, layout = 'kk') +
+  ##   ggraph::geom_edge_link(ggplot2::aes_string(colour = "from"), show.legend = FALSE) +
+  ##   ggraph::geom_node_point(ggplot2::aes_string(size = 'closeness'), alpha = 1/2, show.legend = FALSE) +
+  ##   ggraph::geom_node_text(ggplot2::aes_string(label = 'name'), size = size_labels, repel = TRUE, check_overlap = TRUE) +
+  ##   ggplot2::labs(title = paste0("Network of coauthorship of ", network$author[1])) +
+  ##   ggraph::theme_graph(title_size = 16, base_family = "sans")
+
 }
 
 
